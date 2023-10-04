@@ -4,12 +4,15 @@ import requests
 from flask_pymongo import PyMongo
 import os
 from dotenv import load_dotenv
+from flask_cors import CORS 
+from bson import ObjectId
 
 load_dotenv()
 
 mongoURI = os.getenv("URI")
 
 app = Flask(__name__)
+CORS(app)
 
 # Configure MongoDB using Flask-PyMongo
 app.config['MONGO_URI'] = mongoURI
@@ -35,18 +38,7 @@ def scrape_wikipedia():
         return jsonify({"message": "Scraping and storing complete!", "id": str(inserted_data.inserted_id)})
     except Exception as e:
         return jsonify({"error": str(e)})
-
-@app.route('/scraped_urls', methods=['GET'])
-def get_scraped_urls():
-    try:
-        data = collection.find_one()
-        if data:
-            scraped_urls = data.get("scraped_urls", [])
-            return jsonify({"scraped_urls": scraped_urls})
-        else:
-            return jsonify({"message": "No scraped URLs found."})
-    except Exception as e:
-        return jsonify({"error": str(e)})
+    
 
 @app.route('/get_urls', methods=['GET']) 
 def get_scraped_urls_single():
@@ -58,6 +50,24 @@ def get_scraped_urls_single():
             return jsonify({"scraped_urls": scraped_urls})
         else:
             return jsonify({"message": "No scraped URLs found for the specified URL."})
+    except Exception as e:
+        return jsonify({"error": str(e)})
+    
+
+@app.route('/get_all_data', methods=['GET'])
+def get_all_data_reverse():
+    try:
+        # Retrieve all documents from the MongoDB collection and reverse the order
+        all_data = list(collection.find().sort("_id", -1))
+        
+        # Convert ObjectId to string for each document
+        for item in all_data:
+            item["_id"] = str(item["_id"])
+
+        if all_data:
+            return jsonify({"data": all_data})
+        else:
+            return jsonify({"message": "No data found in the collection."})
     except Exception as e:
         return jsonify({"error": str(e)})
 
