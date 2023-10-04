@@ -17,8 +17,9 @@ CORS(app)
 # Configure MongoDB using Flask-PyMongo
 app.config['MONGO_URI'] = mongoURI
 mongo = PyMongo(app)
-collection = mongo.db.scraped_data  # MongoDB collection
+collection = mongo.db.scraped_data
 
+# POST 
 @app.route('/scrape', methods=['POST'])
 def scrape_wikipedia():
     try:
@@ -39,7 +40,7 @@ def scrape_wikipedia():
     except Exception as e:
         return jsonify({"error": str(e)})
     
-
+# GET by url
 @app.route('/get_urls', methods=['GET']) 
 def get_scraped_urls_single():
     try:
@@ -53,14 +54,13 @@ def get_scraped_urls_single():
     except Exception as e:
         return jsonify({"error": str(e)})
     
-
+# Get All
 @app.route('/get_all_data', methods=['GET'])
 def get_all_data_reverse():
     try:
-        # Retrieve all documents from the MongoDB collection and reverse the order
+        # get the all data reverse the order
         all_data = list(collection.find().sort("_id", -1))
         
-        # Convert ObjectId to string for each document
         for item in all_data:
             item["_id"] = str(item["_id"])
 
