@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Container, Row, Col, Form, Button, ListGroup } from 'react-bootstrap';
 
 const LinkScraper = () => {
+  const api = "https://wikiscraperapi.onrender.com";
   const [url, setUrl] = useState('');
   const [scrapedUrls, setScrapedUrls] = useState([]);
   const [showAll, setShowAll] = useState(false);
@@ -11,7 +12,7 @@ const LinkScraper = () => {
     e.preventDefault();
 
     try {
-      const response = await fetch('http://localhost:5002/scrape', {
+      const response = await fetch(`${api}/scrape`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -20,7 +21,7 @@ const LinkScraper = () => {
       });
 
       if (response.ok) {
-        const urlsResponse = await fetch(`http://localhost:5002/get_urls?url=${url}`);
+        const urlsResponse = await fetch(`${api}/get_urls?url=${url}`);
         if (urlsResponse.ok) {
           const data = await urlsResponse.json();
           setScrapedUrls(data.scraped_urls);
@@ -43,7 +44,7 @@ const LinkScraper = () => {
   useEffect(() => {
     const fetchHistoryData = async () => {
       try {
-        const historyResponse = await fetch('http://localhost:5002/get_all_data');
+        const historyResponse = await fetch(`${api}/get_all_data`);
         if (historyResponse.ok) {
           const data = await historyResponse.json();
           setHistoryData(data.data);
@@ -54,7 +55,7 @@ const LinkScraper = () => {
     };
 
     fetchHistoryData();
-  }, []);
+  }, [historyData]);
 
   return (
     <Container className='w-50'>
