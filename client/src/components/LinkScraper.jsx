@@ -2,8 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Container, Row, Col, Form, Button, ListGroup } from "react-bootstrap";
 
 const LinkScraper = () => {
-  //const api = "https://wikiscraperapi.onrender.com";
-  const api = "http://localhost:5000/";
+  const api = "https://wikiscraperapi.onrender.com";
   const [url, setUrl] = useState("");
   const [scrapedUrls, setScrapedUrls] = useState([]);
   const [showAll, setShowAll] = useState(false);
