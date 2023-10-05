@@ -1,30 +1,33 @@
-import React, { useState, useEffect } from 'react';
-import { Container, Row, Col, Form, Button, ListGroup } from 'react-bootstrap';
+import React, { useState, useEffect } from "react";
+import { Container, Row, Col, Form, Button, ListGroup } from "react-bootstrap";
 
 const LinkScraper = () => {
-  const api = "https://wikiscraperapi.onrender.com";
-  const [url, setUrl] = useState('');
+  //const api = "https://wikiscraperapi.onrender.com";
+  const api = "http://localhost:5000/";
+  const [url, setUrl] = useState("");
   const [scrapedUrls, setScrapedUrls] = useState([]);
   const [showAll, setShowAll] = useState(false);
   const [historyData, setHistoryData] = useState([]);
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     try {
-      const response = await fetch(`${api}/scrape`, {
-        method: 'POST',
+      const response = await fetch(`${api}/scrapeurl`, {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({ url }),
       });
 
       if (response.ok) {
-        const urlsResponse = await fetch(`${api}/get_urls?url=${url}`);
+        const urlsResponse = await fetch(`${api}/getbyurl?url=${url}`);
         if (urlsResponse.ok) {
           const data = await urlsResponse.json();
           setScrapedUrls(data.scraped_urls);
+          console.log(scrapedUrls)
           setShowAll(false);
           setHistoryData((prevData) => [
             { url, scrapedUrls: data.scraped_urls },
@@ -33,7 +36,7 @@ const LinkScraper = () => {
         }
       }
     } catch (error) {
-      console.error('Error:', error);
+      console.error("Error:", error);
     }
   };
 
@@ -44,13 +47,13 @@ const LinkScraper = () => {
   useEffect(() => {
     const fetchHistoryData = async () => {
       try {
-        const historyResponse = await fetch(`${api}/get_all_data`);
+        const historyResponse = await fetch(`${api}/getalldata`);
         if (historyResponse.ok) {
           const data = await historyResponse.json();
           setHistoryData(data.data);
         }
       } catch (error) {
-        console.error('Error:', error);
+        console.error("Error:", error);
       }
     };
 
@@ -58,8 +61,8 @@ const LinkScraper = () => {
   }, [historyData]);
 
   return (
-    <Container className='w-50'>
-      <h1 className="mt-4">Web Scraper</h1>
+    <Container className="w-75">
+      <h1 className="mt-4">Wiki Scraper</h1>
       <Form onSubmit={handleSubmit} className="mb-4">
         <Form.Group as={Row} controlId="formUrl">
           <Form.Label column sm={2}>
@@ -69,7 +72,7 @@ const LinkScraper = () => {
             <Form.Control
               type="text"
               value={url}
-              placeholder='Add Wikipedia URL here'
+              placeholder="Add Wikipedia URL here"
               onChange={(e) => setUrl(e.target.value)}
             />
           </Col>
@@ -86,14 +89,22 @@ const LinkScraper = () => {
           {showAll
             ? scrapedUrls.map((scrapedUrl, index) => (
                 <ListGroup.Item key={index}>
-                  <a href={scrapedUrl} target="_blank" rel="noopener noreferrer">
+                  <a
+                    href={scrapedUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
                     {scrapedUrl}
                   </a>
                 </ListGroup.Item>
               ))
             : scrapedUrls.slice(0, 3).map((scrapedUrl, index) => (
                 <ListGroup.Item key={index}>
-                  <a href={scrapedUrl} target="_blank" rel="noopener noreferrer">
+                  <a
+                    href={scrapedUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
                     {scrapedUrl}
                   </a>
                 </ListGroup.Item>
@@ -104,19 +115,35 @@ const LinkScraper = () => {
         )}
       </div>
 
-      <div className='pt-5'>
+      <div className="pt-5">
         <h2>History:</h2>
         <div>
           {historyData.map((historyItem, index) => (
             <div key={index} className="mb-4">
-              <h4 className='text-secondary'>{historyItem.url}</h4>
+              <h4 className="text-secondary bg-light">
+                <a
+                  className="link-secondary text-decoration-none"
+                  target="_blank"
+                  href={historyItem.url}
+                  rel="noopener noreferrer"
+                >
+                  {historyItem.url}
+                </a>
+              </h4>
               <ListGroup>
-                {historyItem.scraped_urls &&
-                  historyItem.scraped_urls.slice(1, 4).map((scrapedUrl, index) => (
-                    <ListGroup.Item key={index} className='overflow-auto'>
-                      <strong><a className='text-info text-decoration-none' href={scrapedUrl} target="_blank" rel="noopener noreferrer">
-                        {scrapedUrl}
-                      </a></strong>
+                {historyItem.paradata &&
+                  historyItem.paradata.slice(1, 2).map((para, index) => (
+                    <ListGroup.Item key={index} className="overflow-auto">
+                      <strong>
+                        <p
+                          className="font-monospace"
+                          href={historyItem.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          {para}
+                        </p>
+                      </strong>
                     </ListGroup.Item>
                   ))}
               </ListGroup>
@@ -126,6 +153,6 @@ const LinkScraper = () => {
       </div>
     </Container>
   );
-}
+};
 
 export default LinkScraper;
